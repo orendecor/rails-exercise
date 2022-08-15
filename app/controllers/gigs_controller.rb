@@ -1,9 +1,18 @@
 class GigsController < ApplicationController
-  before_action :set_gig, only: [:show, :update, :destroy]
+  before_action :set_gig, only: [:show, :update]
 
   # GET /gigs
   def index
-    @gigs = Gig.all
+    brand_name = params[:brand_name]
+    creator = params[:creator]
+
+    if(brand_name)
+      @gigs = Gig.find_by("brand_name"=> brand_name)
+    elsif (creator)
+      @gigs = Gig.find_by("creator"=> creator)
+    else
+      @gigs = Gig.all
+    end
 
     render json: @gigs
   end
@@ -15,7 +24,11 @@ class GigsController < ApplicationController
 
   # POST /gigs
   def create
-    @gig = Gig.new(gig_params)
+    brand_name = params[:brand_name]
+    # TODO: take creator from auth
+    creator = Creator.last
+
+    @gig = Gig.new("brand_name" => brand_name, "creator"=> creator)
 
     if @gig.save
       render json: @gig, status: :created, location: @gig
@@ -31,11 +44,6 @@ class GigsController < ApplicationController
     else
       render json: @gig.errors, status: :unprocessable_entity
     end
-  end
-
-  # DELETE /gigs/1
-  def destroy
-    @gig.destroy
   end
 
   private

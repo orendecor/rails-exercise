@@ -1,9 +1,14 @@
 class CreatorsController < ApplicationController
-  before_action :set_creator, only: [:show, :update, :destroy]
+  before_action :set_creator, only: [:show]
 
   # GET /creators
   def index
-    @creators = Creator.all
+    # TODO: validate params
+    limit = params[:limit] ? params[:limit] : 100
+    sort = params[:sort] ? params[:sort] : 'id'
+    sort_direction = params[:sort_direction] ? params[:sort_direction] : 'asc'
+    offset = params[:offset] ? params[:offset] : 0
+    @creators = Creator.all.limit(limit).order(sort + " " + sort_direction).offset(offset)
 
     render json: @creators
   end
@@ -13,30 +18,6 @@ class CreatorsController < ApplicationController
     render json: @creator
   end
 
-  # POST /creators
-  def create
-    @creator = Creator.new(creator_params)
-
-    if @creator.save
-      render json: @creator, status: :created, location: @creator
-    else
-      render json: @creator.errors, status: :unprocessable_entity
-    end
-  end
-
-  # PATCH/PUT /creators/1
-  def update
-    if @creator.update(creator_params)
-      render json: @creator
-    else
-      render json: @creator.errors, status: :unprocessable_entity
-    end
-  end
-
-  # DELETE /creators/1
-  def destroy
-    @creator.destroy
-  end
 
   private
     # Use callbacks to share common setup or constraints between actions.
@@ -48,4 +29,5 @@ class CreatorsController < ApplicationController
     def creator_params
       params.require(:creator).permit(:first_name, :last_name)
     end
+
 end
